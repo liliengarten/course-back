@@ -1,0 +1,75 @@
+<?php
+
+
+namespace Tests\Feature;
+
+class CartTest extends TestCase
+{
+    public function test_add_to_cart(): void{
+        $payload = [
+            'email' => 'test@test.test',
+            'password' => 'secret123',
+        ];
+
+        $token = (string)$this->postJson('/api/login', $payload)['data']['user_token'];
+
+        $response = $this->withHeader('Authorization', "Bearer $token")->postJson("/api/cart/1");
+        $response->assertStatus(201);
+    }
+
+    public function test_remove_from_cart(): void{
+        $payload = [
+            'email' => 'test@test.test',
+            'password' => 'secret123',
+        ];
+
+        $token = (string)$this->postJson('/api/login', $payload)['data']['user_token'];
+
+        $response = $this->withHeader('Authorization', "Bearer $token")->postJson("/api/cart/1");
+        $response->assertStatus(201);
+
+        $cart = $this->withHeader('Authorization', "Bearer $token")->getJson("/api/cart");
+        $cart->assertJsonStructure(['data']);
+        $toDelete = 0;
+
+        foreach ($cart['data'] as $item) {
+            if ($item['product_id'] == 1) {
+                $toDelete = $item['id'];
+                break;
+            }
+        }
+
+        $response = $this->withHeader('Authorization', "Bearer $token")->deleteJson("/api/cart/$toDelete");
+        $response->assertStatus(200);
+    }
+
+    public function test_clear_cart(): void{
+        $payload = [
+            'email' => 'test@test.test',
+            'password' => 'secret123',
+        ];
+
+        $token = (string)$this->postJson('/api/login', $payload)['data']['user_token'];
+
+        for ($i = 1; $i <= 5; $i++) {
+            $response = $this->withHeader('Authorization', "Bearer $token")->postJson("/api/cart/$i");
+            $response->assertStatus(201);
+        }
+
+        $cart = $this->withHeader('Authorization', "Bearer $token")->getJson("/api/cart");
+        $cart->assertJsonStructure(['data']);
+        $toDelete = 0;
+
+        for ($i = 1; $i <= 5; $i++) {
+            foreach ($cart['data'] as $item) {
+                if ($item['product_id'] == $i) {
+                    $toDelete = $item['id'];
+                    break;
+                }
+            }
+
+            $response = $this->withHeader('Authorization', "Bearer $token")->deleteJson("/api/cart/$toDelete");
+            $response->assertStatus(200);
+        }
+    }
+}
