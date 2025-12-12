@@ -21,4 +21,17 @@ class OrdersTest extends TestCase
         $response = $this->withHeader('Authorization', "Bearer $token")->postJson("/api/order");
         $response->assertStatus(201);
     }
+
+    public function test_place_order_with_empty_cart()
+    {
+        $payload = [
+            'email' => 'zxcv@zxcv.com',
+            'password' => 'zxcv1234.',
+        ];
+
+        $token = (string)$this->postJson('/api/login', $payload)['data']['user_token'];
+
+        $response = $this->withHeader('Authorization', "Bearer $token")->postJson("/api/order");
+        $response->assertStatus(422);
+    }
 }

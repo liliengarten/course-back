@@ -3,12 +3,18 @@
 
 namespace Tests\Feature;
 
-class CartTest extends TestCase
+class CatalogAndCartTest extends TestCase
 {
+    public function test_get_products()
+    {
+        $response = $this->getJson("/api/products");
+        $response->assertStatus(200);
+    }
+
     public function test_add_to_cart(): void{
         $payload = [
-            'email' => 'zxcv@zxcv.com',
-            'password' => 'zxcv1234.',
+            'email' => 'takenemail@guy.com',
+            'password' => 'emailtaken123.',
         ];
 
         $token = (string)$this->postJson('/api/login', $payload)['data']['user_token'];
@@ -19,8 +25,8 @@ class CartTest extends TestCase
 
     public function test_remove_from_cart(): void{
         $payload = [
-            'email' => 'zxcv@zxcv.com',
-            'password' => 'zxcv1234.',
+            'email' => 'takenemail@guy.com',
+            'password' => 'emailtaken123.',
         ];
 
         $token = (string)$this->postJson('/api/login', $payload)['data']['user_token'];
